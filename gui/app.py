@@ -1,11 +1,16 @@
 import sys
 import os
+
+# Path setup MUST come before project imports
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..')
+    )
+)
+
 import tkinter as tk
 from PIL import Image, ImageTk
-import pyttsx3   # 🔊 voice assistant
-
-# Path setup
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import pyttsx3
 
 # Imports
 from vision.hand_gesture import detect_hand_emotion
@@ -15,6 +20,7 @@ from speech.speech_predict import predict_speech
 
 from vision.face_detect import capture_face
 from vision.face_predict import predict_face
+from fusion.decision import final_emotion
 
 # ❌ removed unused final_emotion import
 from notification_generator import get_notification
@@ -111,31 +117,20 @@ def run_system():
     root.update_idletasks()
 
     # 🎤 Speech Emotion
-    try:
-        features = extract_features("voice.wav")
-        speech_emotion = predict_speech(features)
-    except Exception as e:
-        print("Speech model error:", e)
-        speech_emotion = "normal"
+    
+    speech_emotion = "Under Development"
 
     # 👤 Face Emotion
+    
     try:
         face_emotion = predict_face()
     except Exception as e:
         print("Face model error:", e)
-        face_emotion = None
+        face_emotion = "normal"
 
-    if face_emotion is None or face_emotion == "no_face":
-        msg = "Face not detected clearly. Sit in good lighting and face the camera."
-        result.set(msg)
-        speak(msg)
-        status.set("Face Error ❌")
-        return
-
-    # 🧠 FINAL DECISION (Fusion)
-    emotions = [face_emotion, speech_emotion, hand_emotion]
-    final = max(set(emotions), key=emotions.count)
-
+    # 🧠 FINAL DECISION
+    final = final_emotion(face_emotion, hand_emotion)
+    
     # 🔔 Notification
     try:
         notif = get_notification()

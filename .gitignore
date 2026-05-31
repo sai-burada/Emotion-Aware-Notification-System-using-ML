@@ -1,4 +1,11 @@
 myenv/
-__pycache__/
-.vscode/
+myenv_ai/
+
+face.jpg
+voice.wav
+
+**pycache**/
 *.pyc
+
+test_face_emotion.py
+.vscode/
